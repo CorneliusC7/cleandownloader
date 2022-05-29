@@ -60,14 +60,26 @@ function downloadVideo(url, filePath, quality, __callBack, __callBack2, erro){
     const audio = fs.createWriteStream(`${'downloads/audio.mp3'}`)
     var isFinish = [false,false, false]
     async function getInf(videoID){
-        let info = await ytdl.getInfo(videoID);
-        let format = ytdl.chooseFormat(info.formats, { quality: quality });
-        console.log('Format found!', format['qualityLabel']);
+        try {
+            let info = await ytdl.getInfo(videoID);
+            let format = ytdl.chooseFormat(info.formats, { quality: quality });
+            console.log('Format found!', format['qualityLabel']);
+        }
+        catch (err) {
+            erro('format')
+            return
+        }
     }
     async function getInfa(videoID){
-        let info = await ytdl.getInfo(videoID);
-        let format = ytdl.chooseFormat(info.formats, { format: 'm4a' });
-        console.log('Format found!', format['qualityLabel']);
+        try {
+            let info = await ytdl.getInfo(videoID);
+            let format = ytdl.chooseFormat(info.formats, { format: 'm4a' });
+            console.log('Format found!', format['qualityLabel']);
+        }
+        catch (err) {
+            erro('format')
+            return
+        }
     }
     // Listening for the 'finish' event
     video .on('finish', () => {
