@@ -7,7 +7,6 @@ const fs = require('fs')
 const { Server } = require("socket.io");
 const io = new Server(server);
 const exec = require('child_process').exec
-var ffmpeg = require('fluent-ffmpeg');
 const { v4: uuidv4 } = require('uuid');
 //importing modules
 app.get('/', (req, res) => {
@@ -17,7 +16,7 @@ app.get('/', (req, res) => {
 });
 app.get('/:uud', (req, res) => {
     fs.readFile('downloads/'+'bobby.mp4', (err, data) => {
-        setTimeout(()=>{res.download(req.params.uud+'.mp4', 'bobby.mp4');}, 1000)
+        setTimeout(()=>{res.download('finish/'+req.params.uud+'.mp4', 'result.mp4');}, 1000)
         console.log(req.params.uud)
     })
 });
@@ -28,12 +27,24 @@ server.listen(3000, () => {
 //website
 io.on('connection', (socket) => {
     socket.on('downloadVid', (msg, res) => {
-        console.log(getBasicInfo(msg))
-        downloadVideo(msg, 'downloads/'+'result.mp4', parseInt(res), (uud) => {
-            socket.emit('filename', uud);
-        }, (id) => {
-            socket.emit('prog', id)
-        });
+        if(ytdl.validateURL(msg)){
+            var stream = ytdl(msg);
+            stream.on('info', (info) => {
+                socket.emit('name', info.videoDetails.title);     // Tobu - Roots
+            });
+            console.log(getBasicInfo(msg))
+            socket.emit('info', ytdl.getURLVideoID(msg))
+            downloadVideo(msg, 'downloads/'+'result.mp4', parseInt(res), (uud) => {
+                socket.emit('filename', uud);
+            }, (id) => {
+                socket.emit('prog', id)
+            }, (err) => {
+                socket.emit('err')
+            });
+        }else{
+            socket.emit('invalid')
+        }
+        
     })
     console.log('a user connected');
 });  
@@ -44,9 +55,9 @@ io.on('connection', (socket) => {
         return result // "Some User token"
     })
 }
-function downloadVideo(url, filePath, quality, __callBack, __callBack2){
+function downloadVideo(url, filePath, quality, __callBack, __callBack2, erro){
     const video = fs.createWriteStream(`${filePath}`);
-    const audio = fs.createWriteStream(`${'audio.m4a'}`)
+    const audio = fs.createWriteStream(`${'downloads/audio.mp3'}`)
     var isFinish = [false,false, false]
     async function getInf(videoID){
         let info = await ytdl.getInfo(videoID);
@@ -55,7 +66,7 @@ function downloadVideo(url, filePath, quality, __callBack, __callBack2){
     }
     async function getInfa(videoID){
         let info = await ytdl.getInfo(videoID);
-        let format = ytdl.chooseFormat(info.formats, { quality: 'highestaudio' });
+        let format = ytdl.chooseFormat(info.formats, { format: 'm4a' });
         console.log('Format found!', format['qualityLabel']);
     }
     // Listening for the 'finish' event
@@ -72,20 +83,29 @@ function downloadVideo(url, filePath, quality, __callBack, __callBack2){
     const ab = setInterval(() => {
         if(isFinish[0] && isFinish[1] && !isFinish[2]){
             const uud = uuidv4().toString()
-            exec('ffmpeg -i downloads/result.mp4 -i audio.m4a -acodec copy -vcodec copy '+uud+'.mp4')
+            exec('ffmpeg -i downloads/result.mp4 -i downloads/audio.mp3 -acodec copy -vcodec copy finish/'+uud+'.mp4')
             isFinish[2] = true
             __callBack(uud)
         }
     }, 1000)
     setInterval(() => { if (isFinish[2]) {clearInterval(ab)} }, 10)    // Plug it into the ReadableStream
-    ytdl(url, {
-        format: "mp4",
-        quality: quality
-    }).pipe(video);
-    ytdl(url, {
-        format: "m4a",
-        quality: 'highestaudio'
-    }).pipe(audio);
+    try{
+        ytdl(url, {
+            format: "mp4",
+            quality: quality
+        }).pipe(video);
+    }
+    catch(err){
+        erro(err)
+    }
+    try{
+        ytdl(url, {
+            format: "m4a",
+        }).pipe(audio);
+    }
+    catch(err){
+        erro(err);
+    }
     
     getInf(ytdl.getURLVideoID(url))
     getInfa(ytdl.getURLVideoID(url))
