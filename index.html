@@ -32,13 +32,17 @@
 <body class="bg-slate-900 p-2" style="background-color: #4158D0;
 background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
 ">
-    <p class="text-white p-2" style="position: absolute;bottom: 0;left: 0;"><i class="bi bi-github"></i> Version 1.1</p>
+    <a class="text-white p-2" style="position: absolute;bottom: 0;left: 0;" href="https://github.com/CorneliusC7/cleandownloader"><i class="bi bi-github"></i> Version 1.2</a>
     <h1 class='text-white' style="position: absolute;"><i class="bi bi-patch-check-fill"></i> Made by 2C</h1>
     <div class="cnt">
         <h1 class="text-3xl pb-2 text-white" style="">Clean Downloader</h1>
         <h3 class="text-xl text-white pb-2">No Ads, No Pop-ups, No Cookies, No Log-ins, Completely anonymous Video Dowloader.</h3>
         <input type="text" id="videoUrl" class="p-2 bg-white rounded-lg mb-2" style="outline: none;" placeholder="Insert url here...">
         <br>
+        <div style="text-align: center;height: auto;transition: 0.2s;display: none;" class="mb-1" id="info">
+            <img src="assets/loading.gif" alt="" style="width: 10%;vertical-align: middle;display: table-cell;" id="thumb">
+            <h3 class="text-md text-white pb-2" id="title">-</h3>
+        </div>
         <select name="" id="resolution" class="p-2 bg-stone-100 text-grey-700 rounded-lg">
             <option value="137">1080p</option>
             <option value="136">720p</option>
@@ -58,10 +62,10 @@ background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
             document.getElementById('downloa').innerText = 'Loading information....';
         }
         socket.on('filename', (uud) => {
+            document.getElementById('downloa').innerText = 'Finished! 🍵';
             setTimeout(()=>{
-                document.getElementById('downloa').innerText = 'Finished! 🍵';
-            open('/'+uud, '_self')
-            }, 100)
+                open('/'+uud, '_self')
+            }, 2000)
         })
         socket.on('prog', (id) => {
             if(id == '1'){
@@ -70,6 +74,24 @@ background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
             if(id == '2'){
                 document.getElementById('downloa').innerText = 'Downloading audio...'
             }
+        })
+        socket.on('info', (uud) => {
+            setTimeout(()=>{
+                document.getElementById('thumb').src = 'https://i.ytimg.com/vi/'+uud.toString()+'/hqdefault.jpg';
+            }, 100)
+            document.getElementById('info').style.display = 'block';
+        })
+        socket.on('name', (uud) => {
+            setTimeout(()=>{
+                document.getElementById('title').innerText = uud;
+            }, 100)
+            
+        })
+        socket.on('invalid', (uud) => {
+            document.getElementById('downloa').innerText = 'invalid URL'
+        })
+        socket.on('err', (uud) => {
+            document.getElementById('downloa').innerText = 'error occured.'
         })
     </script>
 </body>
