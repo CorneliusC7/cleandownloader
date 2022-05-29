@@ -6,3 +6,5 @@ Clone this git and type, `npm i socket.io express uuid ytdl-core fluent-ffmpeg n
 Run the server with `npx nodemon index.js`, and open the website on `localhost:3000`.
 
 ![image](https://i.imgur.com/Nw2RAO1.png)
+
+![image](https://i.imgur.com/sDti4d1.png)
