@@ -32,7 +32,7 @@
 <body class="bg-slate-900 p-2" style="background-color: #4158D0;
 background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
 ">
-    <a class="text-white p-2" style="position: absolute;bottom: 0;left: 0;" href="https://github.com/CorneliusC7/cleandownloader"><i class="bi bi-github"></i> Version 1.2</a>
+    <a class="text-white p-2" style="position: absolute;bottom: 0;left: 0;" href="https://github.com/CorneliusC7/cleandownloader"><i class="bi bi-github"></i> Version 1.3</a>
     <h1 class='text-white' style="position: absolute;"><i class="bi bi-patch-check-fill"></i> Made by 2C</h1>
     <div class="cnt">
         <h1 class="text-3xl pb-2 text-white" style="">Clean Downloader</h1>
@@ -40,15 +40,21 @@ background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
         <input type="text" id="videoUrl" class="p-2 bg-white rounded-lg mb-2" style="outline: none;" placeholder="Insert url here...">
         <br>
         <div style="text-align: center;height: auto;transition: 0.2s;display: none;" class="mb-1" id="info">
-            <img src="assets/loading.gif" alt="" style="width: 10%;vertical-align: middle;display: table-cell;" id="thumb">
+            <img src="assets/loading.gif" alt="" style="width: 20%;vertical-align: middle;display: table-cell;" class="mb-2" id="thumb">
             <h3 class="text-md text-white pb-2" id="title">-</h3>
         </div>
         <select name="" id="resolution" class="p-2 bg-stone-100 text-grey-700 rounded-lg">
+            <option value="138">2160p60 <span class="text-white">(4K)</span></option>
+            <option value="299" selected>1080p60</option>
             <option value="137">1080p</option>
+            <option value="298">720p60</option>
             <option value="136">720p</option>
+            <option value="135">480p</option>
             <option value="134">360p</option>
+            <option value="160">144p</option>
         </select>
         <button onclick="downloadVid()" class="text-white bg-transparent p-2 rounded-lg hover:text-black hover:bg-white" style="transition: .2s;"><i class="bi bi-download" style="font-weight: bold;"></i> Download Now</button>
+        <br>
         <br>
         <h4 id="downloa" class="text-white"></h4>
         
@@ -91,7 +97,11 @@ background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
             document.getElementById('downloa').innerText = 'invalid URL'
         })
         socket.on('err', (uud) => {
-            document.getElementById('downloa').innerText = 'error occured.'
+            if(uud = 'format'){
+                document.getElementById('downloa').innerHTML = '<span style="color: white;background: red;padding: 5px;border-radius: 5px;margin: 5px;">Error occured. Causes: Format/Video Quality not found</span>'
+            }else{
+                document.getElementById('downloa').innerHTML = '<span style="color: white;background: red;padding: 5px;border-radius: 5px;margin: 5px;">Error occured. Causes: Unknown</span>'
+            }
         })
     </script>
 </body>
