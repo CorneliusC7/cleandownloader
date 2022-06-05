@@ -8,7 +8,8 @@ const { Server } = require("socket.io");
 const io = new Server(server);
 const exec = require('child_process').exec
 const { v4: uuidv4 } = require('uuid');
-//importing modules
+const del = require("del");
+
 app.get('/', (req, res) => {
     fs.readFile('index.html', (err, data) => {
         res.send(data.toString())
@@ -18,7 +19,9 @@ app.get('/:uud', (req, res) => {
     fs.readFile('downloads/'+'bobby.mp4', (err, data) => {
         setTimeout(()=>{res.download('finish/'+req.params.uud+'.mp4', 'result.mp4');}, 1000)
         console.log(req.params.uud)
-    })
+		//delete all files
+		del.sync(['downloads/**', '!downloads']);
+    });
 });
 
 server.listen(3000, () => {
@@ -52,7 +55,7 @@ io.on('connection', (socket) => {
  function getBasicInfo(url){
     let a =  ytdl.getBasicInfo(url)
     a.then(function(result) {
-        return result // "Some User token"
+        return result;
     })
 }
 function downloadVideo(url, filePath, quality, __callBack, __callBack2, erro){
